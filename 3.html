@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e路保 - 年轻人的DIY数字医保</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- 自定义样式 -->
+    <style>
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 条款阅读倒计时样式 */
+        .countdown {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        /* 保费计算动画 */
+        .premium-animation {
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 底部导航栏 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-md z-50">
+        <div class="flex justify-around items-center py-3">
+            <button class="nav-btn flex flex-col items-center text-blue-500" data-page="home">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
+                <span class="text-xs mt-1">保障DIY</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-500" data-page="health">
+                <i class="fa-solid fa-robot text-xl"></i>
+                <span class="text-xs mt-1">AI健康</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-500" data-page="claim">
+                <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                <span class="text-xs mt-1">快速理赔</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-500" data-page="mine">
+                <i class="fa-solid fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 1. 首页：保障模块DIY页面 -->
+    <div id="home" class="page active pt-4 pb-20 px-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-star text-yellow-500 mr-2"></i>基础保障（必选）
+            </h2>
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg mb-3">
+                <div>
+                    <h3 class="font-semibold">基础住院保障</h3>
+                    <p class="text-xs text-gray-500">覆盖意外/疾病住院医疗费用</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-blue-500">¥25/月</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-puzzle-piece text-purple-500 mr-2"></i>特色模块（可选）
+            </h2>
+            <!-- 特色模块1：熬夜护肝 -->
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg mb-3">
+                <div class="flex items-center">
+                    <input type="checkbox" id="module1" class="module-checkbox w-5 h-5 text-blue-500 mr-3" data-price="8">
+                    <label for="module1" class="font-semibold">熬夜护肝保障</label>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-blue-500">¥8/月</p>
+                    <p class="text-xs text-gray-500">覆盖肝损伤检查/治疗</p>
+                </div>
+            </div>
+            <!-- 特色模块2：运动损伤 -->
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg mb-3">
+                <div class="flex items-center">
+                    <input type="checkbox" id="module2" class="module-checkbox w-5 h-5 text-blue-500 mr-3" data-price="12">
+                    <label for="module2" class="font-semibold">运动损伤保障</label>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-blue-500">¥12/月</p>
+                    <p class="text-xs text-gray-500">覆盖跑步/健身等损伤治疗</p>
+                </div>
+            </div>
+            <!-- 特色模块3：肠胃保障 -->
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg mb-3">
+                <div class="flex items-center">
+                    <input type="checkbox" id="module3" class="module-checkbox w-5 h-5 text-blue-500 mr-3" data-price="6">
+                    <label for="module3" class="font-semibold">肠胃健康保障</label>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-blue-500">¥6/月</p>
+                    <p class="text-xs text-gray-500">覆盖胃炎/胃溃疡等治疗</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保费计算结果 -->
+        <div class="bg-blue-50 rounded-xl p-4 mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">已选模块</span>
+                <span id="selected-count">1个（基础保障）</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">基础保费</span>
+                <span>¥25.00</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">特色模块加价</span>
+                <span id="add-price">¥0.00</span>
+            </div>
+            <div class="flex justify-between items-center pt-3 border-t border-blue-200">
+                <span class="font-bold text-lg">每月总保费</span>
+                <span id="total-price" class="font-bold text-lg text-blue-500 premium-animation">¥25.00</span>
+            </div>
+        </div>
+
+        <!-- 立即投保按钮 -->
+        <button id="buy-btn" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center">
+            <i class="fa-solid fa-shopping-cart mr-2"></i>立即投保
+        </button>
+    </div>
+
+    <!-- 2. AI健康管家页面 -->
+    <div id="health" class="page pt-4 pb-20 px-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-bell text-red-500 mr-2"></i>健康提醒
+            </h2>
+            <div class="p-3 border border-red-100 bg-red-50 rounded-lg mb-3">
+                <div class="flex items-start">
+                    <i class="fa-solid fa-clock text-red-500 mt-1 mr-2"></i>
+                    <div>
+                        <p class="font-semibold">久坐提醒</p>
+                        <p class="text-xs text-gray-600">您已连续久坐2小时，建议起身活动5分钟，避免颈椎疲劳～</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border border-yellow-100 bg-yellow-50 rounded-lg">
+                <div class="flex items-start">
+                    <i class="fa-solid fa-moon text-yellow-500 mt-1 mr-2"></i>
+                    <div>
+                        <p class="font-semibold">熬夜提醒</p>
+                        <p class="text-xs text-gray-600">当前时间23:30，长期熬夜易导致肝损伤，建议您尽快休息～</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI聊天机器人 -->
+        <div class="bg-white rounded-xl shadow-sm p-4 h-[50vh] flex flex-col">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-robot text-purple-500 mr-2"></i>AI健康助手
+            </h2>
+            <!-- 聊天记录 -->
+            <div class="flex-1 overflow-y-auto mb-3 p-2 bg-gray-50 rounded-lg" id="chat-history">
+                <div class="flex justify-start mb-3">
+                    <div class="bg-blue-100 rounded-l-none rounded-xl p-2 max-w-[80%]">
+                        <p class="text-sm">你好！我是你的AI健康助手，有什么健康问题可以问我～</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 输入框 -->
+            <div class="flex items-center">
+                <input type="text" id="chat-input" placeholder="输入健康问题（如：熬夜后怎么护肝？）" 
+                       class="flex-1 border border-gray-300 rounded-l-xl px-3 py-2 focus:outline-none focus:border-blue-500">
+                <button id="send-btn" class="bg-blue-500 text-white px-4 py-2 rounded-r-xl">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 快速理赔页面 -->
+    <div id="claim" class="page pt-4 pb-20 px-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-file-invoice-dollar text-green-500 mr-2"></i>申请理赔
+            </h2>
+            <form id="claim-form">
+                <!-- 理赔类型 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">理赔类型</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
+                        <option>基础住院理赔</option>
+                        <option>熬夜护肝模块理赔</option>
+                        <option>运动损伤模块理赔</option>
+                        <option>肠胃健康模块理赔</option>
+                    </select>
+                </div>
+                <!-- 上传病历 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">上传病历照片</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center" id="medical-upload">
+                        <i class="fa-solid fa-camera text-gray-400 text-3xl mb-2"></i>
+                        <p class="text-sm text-gray-500">点击或拖拽上传病历照片</p>
+                        <input type="file" accept="image/*" class="hidden" id="medical-file">
+                    </div>
+                    <p id="medical-name" class="text-xs text-gray-500 mt-1 hidden"></p>
+                </div>
+                <!-- 上传发票 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">上传医疗发票</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center" id="invoice-upload">
+                        <i class="fa-solid fa-file-invoice text-gray-400 text-3xl mb-2"></i>
+                        <p class="text-sm text-gray-500">点击或拖拽上传发票照片</p>
+                        <input type="file" accept="image/*" class="hidden" id="invoice-file">
+                    </div>
+                    <p id="invoice-name" class="text-xs text-gray-500 mt-1 hidden"></p>
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow-md">
+                    提交理赔申请
+                </button>
+            </form>
+        </div>
+
+        <!-- 理赔进度 -->
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-timeline text-blue-500 mr-2"></i>理赔进度
+            </h2>
+            <div class="relative">
+                <!-- 进度线 -->
+                <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-blue-200"></div>
+                <!-- 进度节点1 -->
+                <div class="flex mb-6 relative">
+                    <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs z-10">1</div>
+                    <div class="ml-5">
+                        <h3 class="font-semibold">申请提交</h3>
+                        <p class="text-xs text-gray-500">2024-05-20 14:30</p>
+                        <p class="text-xs text-gray-600 mt-1">您已提交基础住院理赔申请，等待审核</p>
+                    </div>
+                </div>
+                <!-- 进度节点2 -->
+                <div class="flex mb-6 relative">
+                    <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs z-10">2</div>
+                    <div class="ml-5">
+                        <h3 class="font-semibold">资料审核通过</h3>
+                        <p class="text-xs text-gray-500">2024-05-20 16:45</p>
+                        <p class="text-xs text-gray-600 mt-1">您的理赔资料已审核通过，进入赔付流程</p>
+                    </div>
+                </div>
+                <!-- 进度节点3 -->
+                <div class="flex relative">
+                    <div class="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs z-10">3</div>
+                    <div class="ml-5">
+                        <h3 class="font-semibold text-gray-400">赔付到账</h3>
+                        <p class="text-xs text-gray-400">待完成</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 个人中心页面 -->
+    <div id="mine" class="page pt-4 pb-20 px-4">
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4 flex items-center">
+            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-2xl font-bold mr-4">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold">e路保用户</h2>
+                <p class="text-xs text-gray-500">会员等级：普通会员</p>
+            </div>
+        </div>
+
+        <!-- 我的保单 -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center justify-between">
+                <span class="flex items-center"><i class="fa-solid fa-file-contract text-green-500 mr-2"></i>我的保单</span>
+                <span class="text-xs text-blue-500">查看全部</span>
+            </h2>
+            <div class="p-3 border border-gray-200 rounded-lg">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold">e路保组合保障</h3>
+                    <span class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded">保障中</span>
+                </div>
+                <div class="flex flex-wrap gap-1 mb-2">
+                    <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">基础住院</span>
+                    <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">熬夜护肝</span>
+                    <span class="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded">运动损伤</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>生效日期：2024-05-20</span>
+                    <span>到期日期：2024-06-20</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 合规条款 -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fa-solid fa-file-shield text-blue-500 mr-2"></i>合规条款
+            </h2>
+            <button id="terms-btn" class="w-full text-left border border-gray-200 rounded-lg p-3 flex justify-between items-center">
+                <span>《e路保免责条款》</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </button>
+        </div>
+
+        <!-- 客服入口 -->
+        <div class="bg-white rounded-xl shadow-sm p-4">
+            <button class="w-full text-left flex items-center">
+                <i class="fa-solid fa-headset text-blue-500 text-xl mr-3"></i>
+                <div>
+                    <h3 class="font-semibold">在线客服</h3>
+                    <p class="text-xs text-gray-500">工作日 9:00-18:00</p>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- 免责条款弹窗 -->
+    <div id="terms-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl w-[90%] max-h-[80vh] overflow-y-auto p-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-lg">《e路保免责条款》</h3>
+                <button id="close-modal" class="text-gray-500">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="text-sm text-gray-600 space-y-2">
+                <p>1. 本产品仅保障被保险人在中国大陆境内（不含港澳台地区）发生的符合保障范围的医疗费用。</p>
+                <p>2. 因以下情形导致的医疗费用，本产品不承担赔偿责任：</p>
+                <p class="pl-4">（1）被保险人故意行为、犯罪行为导致的损伤；</p>
+                <p class="pl-4">（2）被保险人参与高风险运动（如蹦极、跳伞、赛车等）导致的损伤；</p>
+                <p class="pl-4">（3）被保险人在投保前已确诊的慢性疾病（如高血压、糖尿病等）的治疗费用；</p>
+                <p>3. 被保险人申请理赔时，需提供真实、完整的医疗资料（病历、发票等），如存在虚假申报，保险公司有权拒绝赔付并解除保险合同。</p>
+                <p>4. 本产品保费根据市场风险情况可能进行调整，调整前将提前7个工作日通过H5内通知告知用户。</p>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs text-gray-500 mb-2">请至少阅读30秒后确认</p>
+                <p id="terms-countdown" class="countdown text-center mb-3">30秒</p>
+                <button id="confirm-terms" class="w-full bg-blue-500 text-white font-bold py-2 rounded-lg disabled:bg-gray-300" disabled>
+                    我已阅读并同意
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 投保成功弹窗 -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl w-[90%] p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-500 text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="font-bold text-xl mb-2">投保成功！</h3>
+            <p class="text-gray-600 mb-6">您的e路保组合保障已生效，电子保单已存入“我的保单”</p>
+            <button id="close-success" class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl">
+                前往我的保单
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript 交互逻辑 -->
+    <script>
+        // 1. 页面切换功能
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const pages = document.querySelectorAll('.page');
+        
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 切换导航按钮样式
+                navBtns.forEach(b => b.classList.remove('text-blue-500'));
+                navBtns.forEach(b => b.classList.add('text-gray-500'));
+                btn.classList.remove('text-gray-500');
+                btn.classList.add('text-blue-500');
+                
+                // 切换页面
+                const targetPage = btn.getAttribute('data-page');
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(targetPage).classList.add('active');
+            });
+        });
+
+        // 2. 保障模块选择与保费计算
+        const moduleCheckboxes = document.querySelectorAll('.module-checkbox');
+        const addPriceEl = document.getElementById('add-price');
+        const totalPriceEl = document.getElementById('total-price');
+        const selectedCountEl = document.getElementById('selected-count');
+        let basePrice = 25; // 基础保费
+        let addPrice = 0; // 特色模块加价
+        let selectedCount = 1; // 已选模块数（默认含基础保障）
+
+        moduleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const modulePrice = parseInt(checkbox.getAttribute('data-price'));
+                if (checkbox.checked) {
+                    addPrice += modulePrice;
+                    selectedCount += 1;
+                } else {
+                    addPrice -= modulePrice;
+                    selectedCount -= 1;
+                }
+                // 更新显示
+                addPriceEl.textContent = `¥${addPrice.toFixed(2)}`;
+                totalPriceEl.textContent = `¥${(basePrice + addPrice).toFixed(2)}`;
+                selectedCountEl.textContent = `${selectedCount}个（${selectedCount > 1 ? '基础保障+特色模块' : '基础保障'}）`;
+            });
+        });
+
+        // 3. AI健康助手聊天功能
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatHistory = document.getElementById('chat-history');
+        
+        // 预设回答（模拟AI回复）
+        const aiResponses = {
+            "熬夜后怎么护肝？": "熬夜后建议：1. 补充水分，喝温水或菊花茶；2. 第二天保证30分钟午休；3. 饮食清淡，避免油腻食物；4. 避免再次熬夜，规律作息。",
+            "运动拉伤了怎么办？": "运动拉伤后处理步骤：1. 立即停止运动，避免二次损伤；2. 用冰袋冷敷15-20分钟（间隔1-2小时重复）；3. 用弹性绷带加压包扎；4. 抬高受伤部位，减少肿胀；若疼痛严重，建议及时就医。",
+            "胃炎怎么调理？": "胃炎调理建议：1. 规律饮食，避免暴饮暴食；2. 避免辛辣、生冷、过烫食物；3. 戒烟戒酒，减少咖啡/浓茶摄入；4. 保持情绪稳定，避免焦虑；5. 遵医嘱服用胃黏膜保护药物。",
+            "默认回答": "很抱歉，我暂时无法回答这个问题，建议您咨询专业医生获取更准确的建议～"
+        };
+
+        // 发送消息
+        function sendMessage() {
+            const userInput = chatInput.value.trim();
+            if (!userInput) return;
+            
+            // 添加用户消息到聊天记录
+            const userMessage = `
+                <div class="flex justify-end mb-3">
+                    <div class="bg-blue-500 text-white rounded-r-none rounded-xl p-2 max-w-[80%]">
+                        <p class="text-sm">${userInput}</p>
+                    </div>
+                </div>
+            `;
+            chatHistory.insertAdjacentHTML('beforeend', userMessage);
+            chatInput.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight; // 滚动到底部
+            
+            // 模拟AI思考延迟
+            setTimeout(() => {
+                const aiResponse = aiResponses[userInput] || aiResponses["默认回答"];
+                const aiMessage = `
+                    <div class="flex justify-start mb-3">
+                        <div class="bg-blue-100 rounded-l-none rounded-xl p-2 max-w-[80%]">
+                            <p class="text-sm">${aiResponse}</p>
+                        </div>
+                    </div>
+                `;
+                chatHistory.insertAdjacentHTML('beforeend', aiMessage);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }, 1000);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // 4. 图片上传功能
+        const medicalUpload = document.getElementById('medical-upload');
+        const medicalFile = document.getElementById('medical-file');
+        const medicalName = document.getElementById('medical-name');
+        const invoiceUpload = document.getElementById('invoice-upload');
+        const invoiceFile = document.getElementById('invoice-file');
+        const invoiceName = document.getElementById('invoice-name');
+
+        // 病历上传
+        medicalUpload.addEventListener('click', () => {
+            medicalFile.click();
+        });
+        medicalFile.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                medicalName.textContent = `已上传：${e.target.files[0].name}`;
+                medicalName.classList.remove('hidden');
+                medicalUpload.classList.remove('border-gray-300');
+                medicalUpload.classList.add('border-green-500');
+            }
+        });
+
+        // 发票上传
+        invoiceUpload.addEventListener('click', () => {
+            invoiceFile.click();
+        });
+        invoiceFile.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                invoiceName.textContent = `已上传：${e.target.files[0].name}`;
+                invoiceName.classList.remove('hidden');
+                invoiceUpload.classList.remove('border-gray-300');
+                invoiceUpload.classList.add('border-green-500');
+            }
+        });
+
+        // 5. 免责条款弹窗与倒计时
+        const termsBtn = document.getElementById('terms-btn');
+        const termsModal = document.getElementById('terms-modal');
+        const closeModal = document.getElementById('close-modal');
+        const termsCountdown = document.getElementById('terms-countdown');
+        const confirmTerms = document.getElementById('confirm-terms');
+        let countdownTimer;
+
+        // 打开弹窗
+        termsBtn.addEventListener('click', () => {
+            termsModal.classList.remove('hidden');
+            let seconds = 30;
+            termsCountdown.textContent = `${seconds}秒`;
+            confirmTerms.disabled = true;
+            
+            // 倒计时
+            countdownTimer = setInterval(() => {
+                seconds--;
+                termsCountdown.textContent = `${seconds}秒`;
+                if (seconds <= 0) {
+                    clearInterval(countdownTimer);
+                    termsCountdown.textContent = "可确认";
+                    confirmTerms.disabled = false;
+                }
+            }, 1000);
+        });
+
+        // 关闭弹窗
+        closeModal.addEventListener('click', () => {
+            termsModal.classList.add('hidden');
+            clearInterval(countdownTimer);
+        });
+
+        // 确认条款
+        confirmTerms.addEventListener('click', () => {
+            termsModal.classList.add('hidden');
+            clearInterval(countdownTimer);
+            alert('您已成功同意免责条款');
+        });
+
+        // 6. 投保按钮跳转与成功弹窗
+        const buyBtn = document.getElementById('buy-btn');
+        const successModal = document.getElementById('success-modal');
+        const closeSuccess = document.getElementById('close-success');
+
+        buyBtn.addEventListener('click', () => {
+            // 模拟投保流程（实际需对接支付接口）
+            successModal.classList.remove('hidden');
+        });
+
+        closeSuccess.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+            // 跳转到个人中心
+            navBtns.forEach(b => b.classList.remove('text-blue-500'));
+            navBtns.forEach(b => b.classList.add('text-gray-500'));
+            document.querySelector('[data-page="mine"]').classList.remove('text-gray-500');
+            document.querySelector('[data-page="mine"]').classList.add('text-blue-500');
+            
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('mine').classList.add('active');
+        });
+
+        // 7. 理赔表单提交
+        const claimForm = document.getElementById('claim-form');
+        claimForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // 模拟表单提交（实际需对接后端接口）
+            alert('理赔申请已提交，我们将尽快审核');
+            claimForm.reset();
+            medicalName.classList.add('hidden');
+            invoiceName.classList.add('hidden');
+            medicalUpload.classList.remove('border-green-500');
+            medicalUpload.classList.add('border-gray-300');
+            invoiceUpload.classList.remove('border-green-500');
+            invoiceUpload.classList.add('border-gray-300');
+        });
+    </script>
+</body>
+</html>
