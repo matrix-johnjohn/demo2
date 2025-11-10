@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>染韵定制 - 背景色切换版</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 基础样式保持不变 */
+        .page { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .try-on-preview { background: #f5f5f5; border-radius: 8px; overflow: hidden; position: relative; }
+        .design-canvas { border: 1px dashed #ddd; border-radius: 8px; min-height: 200px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 999; }
+        .map-placeholder { background: #f5f5f5; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
+        
+        /* 背景色选择器样式 */
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.active {
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #d97706;
+            border-color: #d97706;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 pb-20">
+    <!-- 省略其他页面代码（保持不变） -->
+
+    <!-- 3. 蜡染定制页（核心修改区域） -->
+    <div id="custom-page" class="page">
+        <div class="p-4 bg-white shadow-sm sticky top-0 z-10">
+            <div class="flex items-center justify-between">
+                <button onclick="switchPage('home-page')" class="text-gray-600">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="text-xl font-bold">蜡染定制</h2>
+                <button onclick="switchPage('my-design-page')" class="text-amber-600">
+                    <i class="fa-solid fa-history"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <!-- 预览区（背景色将在这里切换） -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <h3 class="text-base font-bold mb-3">设计预览</h3>
+                <!-- 设计画布（重点：背景色会通过JS切换） -->
+                <div id="design-canvas" class="design-canvas mb-3" style="background-color: #ffffff;">
+                    <img id="custom-preview" src="https://picsum.photos/id/1010/400/400" alt="设计预览" class="w-48 h-48 object-contain">
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="switchPage('tryon-page')" class="bg-amber-600 text-white px-3 py-1.5 rounded text-sm hover:bg-amber-700 transition try-on-btn">
+                        <i class="fa-solid fa-user-check mr-1"></i>AI试穿（服饰类）
+                    </button>
+                </div>
+            </div>
+
+            <!-- 基础选型（修改为背景色选择） -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <h3 class="text-base font-bold mb-3">基础选型</h3>
+                
+                <!-- 新增：背景色选择器 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择背景色</label>
+                    <div class="flex gap-3">
+                        <!-- 背景色选项：白色、浅灰、米色、浅蓝色、浅绿色 -->
+                        <div class="color-option active" data-color="#ffffff" style="background-color: #ffffff;" onclick="changeBackgroundColor(this)"></div>
+                        <div class="color-option" data-color="#f3f4f6" style="background-color: #f3f4f6;" onclick="changeBackgroundColor(this)"></div>
+                        <div class="color-option" data-color="#fef3c7" style="background-color: #fef3c7;" onclick="changeBackgroundColor(this)"></div>
+                        <div class="color-option" data-color="#dbeafe" style="background-color: #dbeafe;" onclick="changeBackgroundColor(this)"></div>
+                        <div class="color-option" data-color="#dcfce7" style="background-color: #dcfce7;" onclick="changeBackgroundColor(this)"></div>
+                        <div class="color-option" data-color="#fee2e2" style="background-color: #fee2e2;" onclick="changeBackgroundColor(this)"></div>
+                    </div>
+                </div>
+
+                <!-- 面料/尺寸（保持不变） -->
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">面料材质</label>
+                        <select class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-amber-600">
+                            <option value="cotton">棉麻</option>
+                            <option value="silk">丝绸</option>
+                            <option value="canvas">帆布</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">尺寸规格</label>
+                        <select class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-amber-600">
+                            <option value="S">T恤 S码</option>
+                            <option value="M">T恤 M码</option>
+                            <option value="L">T恤 L码</option>
+                            <option value="XL">T恤 XL码</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 定制类型（保持不变） -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">定制类型</label>
+                    <div class="flex gap-3">
+                        <label class="flex items-center p-2 border border-gray-300 rounded text-sm cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="custom-type" checked class="mr-2 text-amber-600">
+                            <span>线下体验自做</span>
+                        </label>
+                        <label class="flex items-center p-2 border border-gray-300 rounded text-sm cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="custom-type" class="mr-2 text-amber-600">
+                            <span>成品邮寄到家</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设计创作（保持不变） -->
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <h3 class="text-base font-bold mb-3">设计创作</h3>
+                <div class="flex border-b border-gray-200 mb-3">
+                    <button class="py-2 px-4 text-amber-600 border-b-2 border-amber-600 font-medium text-sm">模板创作</button>
+                    <button class="py-2 px-4 text-gray-500 hover:text-gray-700 text-sm">自由创作</button>
+                </div>
+                <div class="flex gap-3 overflow-x-auto pb-3 mb-3">
+                    <button class="min-w-[80px] h-20 bg-gray-100 rounded overflow-hidden border-2 border-amber-600">
+                        <img src="https://picsum.photos/id/1018/80/80" alt="民族风模板" class="w-full h-full object-cover">
+                    </button>
+                    <button class="min-w-[80px] h-20 bg-gray-100 rounded overflow-hidden border-2 border-transparent hover:border-amber-400 transition">
+                        <img src="https://picsum.photos/id/1019/80/80" alt="几何模板" class="w-full h-full object-cover">
+                    </button>
+                    <button class="min-w-[80px] h-20 bg-gray-100 rounded overflow-hidden border-2 border-transparent hover:border-amber-400 transition">
+                        <img src="https://picsum.photos/id/1020/80/80" alt="花鸟模板" class="w-full h-full object-cover">
+                    </button>
+                    <button class="min-w-[80px] h-20 bg-gray-100 rounded overflow-hidden border-2 border-transparent hover:border-amber-400 transition">
+                        <img src="https://picsum.photos/id/1021/80/80" alt="抽象模板" class="w-full h-full object-cover">
+                    </button>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <button class="bg-gray-100 text-gray-800 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-font mr-1"></i>添加文字
+                    </button>
+                    <button class="bg-gray-100 text-gray-800 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-arrows-move mr-1"></i>调整位置
+                    </button>
+                    <button class="bg-gray-100 text-gray-800 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-scissors mr-1"></i>抠图工具
+                    </button>
+                    <button class="bg-gray-100 text-gray-800 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-pen-ruler mr-1"></i>蜡刀笔触
+                    </button>
+                </div>
+            </div>
+
+            <!-- 操作按钮（保持不变） -->
+            <div class="flex gap-3">
+                <button class="flex-1 bg-white border border-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-save mr-2"></i>保存设计
+                </button>
+                <button onclick="switchPage('reserve-page')" class="flex-1 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">
+                    <i class="fa-solid fa-calendar-check mr-2"></i>预约体验/下单
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 省略其他页面代码（保持不变） -->
+
+    <!-- 底部导航栏（保持不变） -->
+    <div class="tab-bar flex justify-around items-center py-3">
+        <button onclick="switchPage('home-page')" class="flex flex-col items-center text-amber-600">
+            <i class="fa-solid fa-home text-lg"></i>
+            <span class="text-xs mt-1">首页</span>
+        </button>
+        <button onclick="switchPage('custom-page')" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-palette text-lg"></i>
+            <span class="text-xs mt-1">定制</span>
+        </button>
+        <button onclick="switchPage('store-page')" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-map-marker-alt text-lg"></i>
+            <span class="text-xs mt-1">门店</span>
+        </button>
+        <button onclick="switchPage('order-page')" class="flex flex-col items-center text-gray-500">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-xs mt-1">我的</span>
+        </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 页面切换函数（保持不变）
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // 新增：背景色切换函数
+        function changeBackgroundColor(element) {
+            // 1. 获取选中的颜色值（从data-color属性中）
+            const selectedColor = element.getAttribute('data-color');
+            
+            // 2. 获取设计画布元素并修改背景色
+            const designCanvas = document.getElementById('design-canvas');
+            designCanvas.style.backgroundColor = selectedColor;
+            
+            // 3. 更新选中状态（移除其他选项的active类，给当前点击的选项添加active类）
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+    </script>
+</body>
+</html>
